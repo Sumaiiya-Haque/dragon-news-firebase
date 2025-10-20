@@ -1,13 +1,14 @@
 import React, { use, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { AuthContext } from "../provider/AuthProvider";
 
 const Register = () => {
-  const { createUser, setUser } = use(AuthContext);
+  const { createUser, setUser, updateUser } = use(AuthContext);
   const [nameError, setNameError] = useState("");
-  const handleRegister = (e) => {
-    
 
+  const navigate = useNavigate();
+
+  const handleRegister = (e) => {
     e.preventDefault();
     console.log(e.target);
     const form = e.target;
@@ -27,7 +28,17 @@ const Register = () => {
       .then((result) => {
         const user = result.user;
         // console.log(user);
-        setUser(user);
+        updateUser({ displayName: name, photoURL: photo })
+          .then(() => {
+            setUser({ ...user, displayName: name, photoURL: photo });
+            navigate("/")
+          })
+          .catch((error) => {
+            console.log(error);
+            setUser(user);
+            // An error occurred
+            // ...
+          });
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -53,7 +64,7 @@ const Register = () => {
               placeholder="Name"
               required
             />
-            {nameError && <p  className="text-xs text-error">{nameError}</p>}
+            {nameError && <p className="text-xs text-error">{nameError}</p>}
 
             {/* photo url */}
             <label className="label">Photo URL</label>
